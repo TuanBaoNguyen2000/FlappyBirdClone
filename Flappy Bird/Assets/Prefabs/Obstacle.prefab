@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4541897468770732524}
   - component: {fileID: 283614962680029677}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Obstacle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -45,6 +45,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a18014ff785aeb6498e81df5b885a6d5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  pipeWidth: 2
+  pipeHeight: 5
+  gapSize: 5
+  scrollSpeed: 3
+  showCollisionGizmos: 1
+  collisionColor: {r: 0, g: 1, b: 0, a: 1}
 --- !u!1 &9206098870400248766
 GameObject:
   m_ObjectHideFlags: 0
@@ -55,7 +61,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7155870292566839267}
   - component: {fileID: 107614393684796174}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Square
   m_TagString: Untagged
   m_Icon: {fileID: 0}

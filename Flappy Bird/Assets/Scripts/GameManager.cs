@@ -18,26 +18,22 @@ public class GameManager : MonoBehaviour
 
     public void ResetGame()
     {
+        // Reset score
         score = 0;
         isGameOver = false;
 
-        // Clear existing obstacles
+        // Reset UI
+        //uiManager.UpdateScore(score);
+        //uiManager.ShowGameOver(false);
+
+        // Reset bird
+        bird.Reset();
+
+        // Clear obstacles
         foreach (var obstacle in FindObjectsOfType<Obstacle>())
         {
             Destroy(obstacle.gameObject);
         }
-
-        // Reset bird position
-        bird.transform.position = new Vector3(-4, 0, 0);
-        bird.enabled = true;
-
-        //uiManager.UpdateScore(score);
-        //uiManager.ShowGameOver(false);
-    }
-
-    public void ToggleAI()
-    {
-        bird.SetAIEnabled(!bird.enabled);
     }
 
     public void GameOver()
@@ -45,7 +41,6 @@ public class GameManager : MonoBehaviour
         if (isGameOver) return;
 
         isGameOver = true;
-        bird.Die();
         //uiManager.ShowGameOver(true);
     }
 

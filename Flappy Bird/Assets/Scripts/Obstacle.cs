@@ -4,41 +4,79 @@ using UnityEngine;
 
 public class Obstacle : MonoBehaviour
 {
-    private float scrollSpeed;
-    private float destroyXPosition = -15f;
+    [Header("Pipe Settings")]
+    [SerializeField] private float pipeWidth = 1f;
+    [SerializeField] private float pipeHeight = 10f;
+    [SerializeField] private float gapSize = 4f;
+    [SerializeField] private float scrollSpeed = 3f;
 
-    public void Initialize(float speed, float gapSize)
+    [Header("Debug Visualization")]
+    [SerializeField] private bool showCollisionGizmos = true;
+    [SerializeField] private Color collisionColor = Color.green;
+
+    private float destroyXPosition = -10f;
+    public bool IsScored { get; set; }
+
+    private void Start()
     {
-        scrollSpeed = speed;
-
-        // Create top and bottom parts
-        GameObject top = CreatePipe(true, gapSize / 2);
-        GameObject bottom = CreatePipe(false, -gapSize / 2);
-
-        top.transform.SetParent(transform);
-        bottom.transform.SetParent(transform);
-    }
-
-    private GameObject CreatePipe(bool isTop, float yOffset)
-    {
-        GameObject pipe = new GameObject(isTop ? "TopPipe" : "BottomPipe");
-        pipe.transform.position = transform.position + new Vector3(0, yOffset, 0);
-
-        // Add custom collision detection
-        BoxCollider2D collider = pipe.AddComponent<BoxCollider2D>();
-        collider.size = new Vector2(1, 10);
-        collider.isTrigger = true;
-
-        return pipe;
+        IsScored = false;
     }
 
     private void Update()
     {
+        // Move obstacle
         transform.position += Vector3.left * scrollSpeed * Time.deltaTime;
 
+        // Destroy if off screen
         if (transform.position.x < destroyXPosition)
         {
             Destroy(gameObject);
         }
+    }
+
+    public (Rect topRect, Rect bottomRect) GetPipeRects()
+    {
+        // Calculate centers of pipes
+        Vector2 topCenter = transform.position + Vector3.up * (gapSize / 2 + pipeHeight / 2);
+        Vector2 bottomCenter = transform.position + Vector3.down * (gapSize / 2 + pipeHeight / 2);
+
+        // Create rectangles for both pipes
+        Rect topRect = new Rect(
+            topCenter.x - pipeWidth / 2,    // xMin
+            topCenter.y - pipeHeight / 2,    // yMin
+            pipeWidth,                     // width
+            pipeHeight                     // height
+        );
+
+        Rect bottomRect = new Rect(
+            bottomCenter.x - pipeWidth / 2,  // xMin
+            bottomCenter.y - pipeHeight / 2,  // yMin
+            pipeWidth,                     // width
+            pipeHeight                     // height
+        );
+
+        return (topRect, bottomRect);
+    }
+
+    private void OnDrawGizmos()
+    {
+        if (!showCollisionGizmos) return;
+
+        var (topRect, bottomRect) = GetPipeRects();
+
+        // Draw pipe rectangles
+        Gizmos.color = collisionColor;
+
+        // Top pipe
+        Gizmos.DrawWireCube(
+            new Vector3(topRect.center.x, topRect.center.y, 0),
+            new Vector3(topRect.width, topRect.height, 0)
+        );
+
+        // Bottom pipe
+        Gizmos.DrawWireCube(
+            new Vector3(bottomRect.center.x, bottomRect.center.y, 0),
+            new Vector3(bottomRect.width, bottomRect.height, 0)
+        );
     }
 }

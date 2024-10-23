@@ -6,9 +6,7 @@ public class ObstacleSpawner : MonoBehaviour
 {
     [SerializeField] private GameObject obstaclePrefab;
     [SerializeField] private float spawnInterval = 2f;
-    [SerializeField] private float scrollSpeed = 3f;
-    [SerializeField] private float gapSize = 4f;
-    [SerializeField] private float yPosRange = 3f;
+    [SerializeField] private float heightRange = 2f;
 
     private float timer;
 
@@ -24,11 +22,10 @@ public class ObstacleSpawner : MonoBehaviour
 
     private void SpawnObstacle()
     {
-        float randomY = Random.Range(-yPosRange, yPosRange);
-        Vector3 spawnPos = new Vector3(transform.position.x, randomY, 0);
+        // Randomize height position
+        float randomY = Random.Range(-heightRange, heightRange);
+        Vector3 spawnPos = transform.position + Vector3.up * randomY;
 
-        GameObject obstacle = Instantiate(obstaclePrefab, spawnPos, Quaternion.identity);
-        Obstacle obstacleScript = obstacle.AddComponent<Obstacle>();
-        obstacleScript.Initialize(scrollSpeed, gapSize);
+        Instantiate(obstaclePrefab, spawnPos, Quaternion.identity);
     }
 }
