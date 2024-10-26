@@ -8,7 +8,6 @@ public class Bird : MonoBehaviour
     [SerializeField] private float jumpForce = 5f;
     [SerializeField] private float gravity = -9.8f;
     [SerializeField] private float maxFallSpeed = -10f;
-    [SerializeField] private float moveSpeed = 3f;
 
     [Header("Collision Settings")]
     [SerializeField] private float birdRadius = 0.25f; // Bird's collision circle radius
@@ -16,15 +15,17 @@ public class Bird : MonoBehaviour
     private Vector2 velocity;
     private bool isDead;
     private bool isAIEnabled;
-    private GameManager gameManager;
+    private GameManager gameManager => GameManager.Instance;
 
     [Header("Debug Visualization")]
     [SerializeField] private bool showCollisionGizmos = true;
     [SerializeField] private Color collisionColor = Color.yellow;
 
+    public float JumpForce => jumpForce;
+    public float BirdRadius => birdRadius;
+
     private void Start()
     {
-        gameManager = FindObjectOfType<GameManager>();
         Reset();
     }
 
@@ -44,9 +45,6 @@ public class Bird : MonoBehaviour
         velocity.y += gravity * Time.deltaTime;
         velocity.y = Mathf.Max(velocity.y, maxFallSpeed);
 
-        // Apply horizontal movement
-        velocity.x = moveSpeed;
-
         // Move bird
         transform.position += new Vector3(0, velocity.y * Time.deltaTime, 0);
 
@@ -60,17 +58,22 @@ public class Bird : MonoBehaviour
         }
 
         // Update rotation based on velocity
-        float angle = Mathf.Lerp(-30f, 90f, -velocity.y / maxFallSpeed);
-        transform.rotation = Quaternion.Euler(0, 0, angle);
+        UpdateRotation();
 
         // Check collisions
         CheckCollisions();
     }
 
+    private void UpdateRotation() 
+    {
+        float angle = Mathf.Lerp(-30f, 90f, -velocity.y / maxFallSpeed);
+        transform.rotation = Quaternion.Euler(0, 0, angle);
+    }
+
     private void CheckCollisions()
     {
         // Get all obstacles
-        var obstacles = FindObjectsOfType<Obstacle>();
+        var obstacles = ObstacleManager.Instance.GetActiveObstacles();
 
         foreach (var obstacle in obstacles)
         {
@@ -124,6 +127,7 @@ public class Bird : MonoBehaviour
     public void Jump()
     {
         velocity.y = jumpForce;
+        SoundManager.Instance.PlaySound("Jump");
     }
 
     public void Die()
@@ -132,7 +136,24 @@ public class Bird : MonoBehaviour
 
         isDead = true;
         velocity = Vector2.zero;
+        SoundManager.Instance.PlaySound("Hit");
         gameManager.GameOver();
+    }
+
+    public Vector2 GetVelocity()
+    {
+        return velocity;
+    }
+
+    public float GetGravity()
+    {
+        return gravity;
+    }
+
+    public void SetAIEnabled(bool enabled)
+    {
+        isAIEnabled = enabled;
+        GetComponent<BirdAIController>().SetEnabled(enabled);
     }
 
     private void OnDrawGizmos()

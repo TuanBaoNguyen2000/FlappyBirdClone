@@ -2,11 +2,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class GameManager : MonoBehaviour
+public class GameManager : Singleton<GameManager>
 {
     [SerializeField] private Bird bird;
     [SerializeField] private ObstacleSpawner spawner;
-    //[SerializeField] private UIManager uiManager;
+
+    private UIManager uiManager => UIManager.Instance;
 
     private int score;
     private bool isGameOver;
@@ -23,17 +24,14 @@ public class GameManager : MonoBehaviour
         isGameOver = false;
 
         // Reset UI
-        //uiManager.UpdateScore(score);
-        //uiManager.ShowGameOver(false);
+        uiManager.UpdateScore(score);
+        uiManager.ShowGameOver(false);
 
         // Reset bird
         bird.Reset();
 
         // Clear obstacles
-        foreach (var obstacle in FindObjectsOfType<Obstacle>())
-        {
-            Destroy(obstacle.gameObject);
-        }
+        ObstacleManager.Instance.ClearObstacles();
     }
 
     public void GameOver()
@@ -41,12 +39,19 @@ public class GameManager : MonoBehaviour
         if (isGameOver) return;
 
         isGameOver = true;
-        //uiManager.ShowGameOver(true);
+        uiManager.ShowGameOver(true);
+        SoundManager.Instance.PlaySound("GameOver");
     }
 
     public void AddScore()
     {
         score++;
-        //uiManager.UpdateScore(score);
+        uiManager.UpdateScore(score);
+        SoundManager.Instance.PlaySound("Score");
+    }
+
+    public void SetBirdAI(bool enable)
+    {
+        bird.SetAIEnabled(enable);
     }
 }

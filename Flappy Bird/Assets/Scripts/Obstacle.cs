@@ -16,8 +16,19 @@ public class Obstacle : MonoBehaviour
 
     private float destroyXPosition = -10f;
     public bool IsScored { get; set; }
+    private ObstacleSpawner spawner => ObstacleManager.Instance.ObstacleSpawner;
 
-    private void Start()
+    private void OnEnable()
+    {
+        ObstacleManager.Instance.RegisterObstacle(this);
+    }
+
+    private void OnDisable()
+    {
+        ObstacleManager.Instance.UnregisterObstacle(this);
+    }
+
+    public void ResetObstacle()
     {
         IsScored = false;
     }
@@ -25,13 +36,17 @@ public class Obstacle : MonoBehaviour
     private void Update()
     {
         // Move obstacle
-        transform.position += Vector3.left * scrollSpeed * Time.deltaTime;
+        transform.position += scrollSpeed * Time.deltaTime * Vector3.left ;
 
         // Destroy if off screen
         if (transform.position.x < destroyXPosition)
         {
-            Destroy(gameObject);
+            spawner.ReturnObstacle(this);
         }
+    }
+    public float GetMoveSpeed()
+    {
+        return scrollSpeed;
     }
 
     public (Rect topRect, Rect bottomRect) GetPipeRects()
@@ -57,6 +72,7 @@ public class Obstacle : MonoBehaviour
 
         return (topRect, bottomRect);
     }
+
 
     private void OnDrawGizmos()
     {
